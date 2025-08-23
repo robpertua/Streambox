@@ -188,7 +188,6 @@ header {
 
 .mobile-menu.active {
   transform: translateX(0);
-  background: var(--text);
 }
 
 .mobile-menu-content {
@@ -196,6 +195,7 @@ header {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  background: var(--text);
 }
 
 .mobile-menu-item {
