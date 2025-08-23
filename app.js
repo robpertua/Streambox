@@ -274,7 +274,7 @@ function grid(items, type) {
 
 function hero(item) {
   if(!item || !item.id) return '';
-  const bg = imgUrl(item.backdrop_path, 'w1280');
+  const bg = imgUrl(item.poster_path, 'w342');
   return `<section class="hero" style="background-image:linear-gradient(100deg, rgba(0,0,0,.75) 10%, rgba(0,0,0,.1)), url('${bg}')">
     <div class="hero-inner">
       <div class="chips">
