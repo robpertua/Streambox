@@ -132,7 +132,7 @@ header {
   display: block;
   height: 2px;
   width: 100%;
-  background: var(--text);
+  background: var(--bg);
   border-radius: 1px;
   opacity: 1;
   left: 0;
