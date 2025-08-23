@@ -1,0 +1,167 @@
+:root {
+  --bg: #0b0b0f;
+  --bg-soft: #12121a;
+  --text: #f3f4f6;
+  --muted: #a1a1aa;
+  --accent: #e50914;
+  --card: #16161f;
+  --chip: #1f1f2b;
+  --ring: #2a2a3b;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+.light {
+  --bg: #f6f7fb;
+  --bg-soft: #ffffff;
+  --text: #111827;
+  --muted: #4b5563;
+  --accent: #e50914;
+  --card: #ffffff;
+  --chip: #eef2ff;
+  --ring: #e5e7eb;
+  --shadow: 0 8px 24px rgba(0,0,0,.08);
+}
+
+* { box-sizing: border-box }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji;
+}
+
+a { color: inherit; text-decoration: none }
+img { max-width: 100%; display: block }
+
+/* Header */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: saturate(1.2) blur(8px);
+  background: color-mix(in srgb, var(--bg-soft) 88%, transparent);
+  border-bottom: 1px solid var(--ring);
+}
+
+.nav {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  letter-spacing: .4px;
+}
+
+.brand-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: var(--accent);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 800;
+  box-shadow: var(--shadow);
+}
+
+.tabs {
+  display: flex;
+  gap: 14px;
+  margin-left: 6px;
+}
+
+.tabs a {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+}
+
+.tabs a.active,
+.tabs a:hover {
+  color: var(--text);
+  background: var(--chip);
+}
+
+/* Search */
+.search-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  gap: 10px;
+}
+
+.search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--ring);
+  border-radius: 14px;
+}
+
+.search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+}
+
+.kbd {
+  font-size: .75rem;
+  border: 1px solid var(--ring);
+  padding: 2px 6px;
+  border-radius: 8px;
+  color: var(--muted);
+}
+
+/* Add rest of CSS styles ... */
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 10px;
+}
+
+@media(min-width: 540px) {
+  .grid { grid-template-columns: repeat(3,1fr); }
+}
+
+@media(min-width: 768px) {
+  .grid { grid-template-columns: repeat(5,1fr); }
+}
+
+@media(min-width: 1024px) {
+  .grid { grid-template-columns: repeat(6,1fr); }
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card);
+  border: 1px solid var(--ring);
+  padding: 10px 12px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  display: none;
+}
+
+.toast.show {
+  display: block;
+}
