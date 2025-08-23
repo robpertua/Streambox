@@ -872,3 +872,21 @@ main {
   color: #fff;
   border-color: transparent;
     }
+/* Add these styles to your existing .hero styles */
+.hero {
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: 480px; /* Adjust this value as needed */
+    background-position: top center;
+  }
+  
+  .hero-inner {
+    padding: 20px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.3) 100%);
+  }
+  }
