@@ -125,6 +125,7 @@ header {
   cursor: pointer;
   padding: 0;
   z-index: 50;
+  position: relative;
 }
 
 .mobile-menu-btn span {
@@ -134,8 +135,22 @@ header {
   background: var(--text);
   border-radius: 1px;
   opacity: 1;
+  left: 0;
   transform: rotate(0deg);
   transition: .25s ease-in-out;
+  position: absolute;
+}
+
+.mobile-menu-btn span:nth-child(1) {
+  top: 0px;
+}
+
+.mobile-menu-btn span:nth-child(2) {
+  top: 8px;
+}
+
+.mobile-menu-btn span:nth-child(3) {
+  top: 16px;
 }
 
 .mobile-menu-btn.active span:nth-child(1) {
@@ -167,6 +182,8 @@ header {
   transform: translateX(-100%);
   transition: transform 0.3s ease;
   border-top: 1px solid var(--ring);
+  backdrop-filter: saturate(1.2) blur(8px);
+  -webkit-backdrop-filter: saturate(1.2) blur(8px);
 }
 
 .mobile-menu.active {
@@ -186,7 +203,7 @@ header {
   gap: 12px;
   padding: 16px 20px;
   border-radius: 12px;
-  color: var(--muted);
+  color: var(--text);
   font-weight: 500;
   transition: all 0.2s ease;
   border: 1px solid transparent;
@@ -195,12 +212,13 @@ header {
 .mobile-menu-item:hover,
 .mobile-menu-item.active {
   background: var(--chip);
-  color: var(--text);
   border-color: var(--ring);
+  color: var(--accent);
 }
 
 .mobile-menu-item svg {
   flex-shrink: 0;
+  opacity: 0.8;
 }
 
 /***********************
@@ -565,11 +583,15 @@ main {
   position: absolute;
   top: 8px;
   left: 8px;
-  background: rgba(0,0,0,.75);
+  background: rgba(0,0,0,.85);
+  color: #fff;
   padding: 4px 8px;
   border-radius: 8px;
   font-size: 0.75rem;
+  font-weight: 600;
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .hover {
@@ -848,4 +870,4 @@ main {
   background: var(--accent);
   color: #fff;
   border-color: transparent;
-}
+    }
