@@ -394,7 +394,7 @@ main {
   border-radius: 20px;
   overflow: hidden;
   background: linear-gradient(100deg, rgba(0,0,0,.8) 10%, rgba(0,0,0,.4)), var(--bg-soft);
-  min-height: 700px;
+  min-height: 580px;
   display: flex;
   align-items: flex-end;
   margin-bottom: 24px;
