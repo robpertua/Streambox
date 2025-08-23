@@ -50,6 +50,225 @@ const state = {
 };
 
 /***********************
+ * ROUTING & NAVIGATION*
+ ***********************/
+function parseHash() {
+  const [path, qs] = (location.hash || '#/home').slice(1).split('?');
+  const params = Object.fromEntries(new URLSearchParams(qs || ''));
+  return { path, params };
+}
+
+function navigate(to) {
+  location.hash = to;
+}
+
+async function tick() {
+  const { path, params } = parseHash();
+  
+  // Update active tab
+  els('[data-tab]').forEach(tab => {
+    tab.classList.toggle('active', tab.getAttribute('href') === location.hash);
+  });
+  
+  // Route to page
+  switch(path) {
+    case '/home':
+      await renderHome();
+      break;
+    case '/movies':
+      await renderDiscover('movie');
+      break;
+    case '/tv':
+      await renderDiscover('tv');
+      break;
+    case '/watch':
+      await renderWatch(params);
+      break;
+    case '/watchlist':
+      await renderWatchlist();
+      break;
+    default:
+      navigate('#/home');
+  }
+}
+
+/***********************
+ * LOADING STATES     *
+ ***********************/
+function skeletonHero() {
+  return `<div class="hero skeleton"></div>`;
+}
+
+function sectionSkeleton(title) {
+  return `
+    <div class="section">
+      <h2>${title}</h2>
+      <div class="grid">
+        ${Array(6).fill('<div class="card"><div class="thumb skeleton"></div></div>').join('')}
+      </div>
+    </div>
+  `;
+}
+
+function errorBlock(error) {
+  return `
+    <div style="text-align:center; padding:40px;">
+      <h2>Error</h2>
+      <p style="color:var(--muted)">${error.message}</p>
+    </div>
+  `;
+}
+
+/***********************
+ * DETAILS BLOCK      *
+ ***********************/
+function detailsBlock(data) {
+  const providers = data['watch/providers']?.results?.[CONFIG.REGION]?.flatrate || [];
+  const genres = data.genres || [];
+  
+  return `
+    <h2>${titleOf(data)}</h2>
+    <div class="meta-row" style="margin:8px 0">
+      ${data.release_date || data.first_air_date ? 
+        `<span>${(data.release_date || data.first_air_date).slice(0,4)}</span> • ` : ''}
+      ${data.runtime ? `<span>${data.runtime} min</span> • ` : ''}
+      ${data.number_of_seasons ? 
+        `<span>${data.number_of_seasons} Season${data.number_of_seasons>1?'s':''}</span> • ` : ''}
+      ${data.vote_average ? 
+        `<span>★ ${data.vote_average.toFixed(1)}</span>` : ''}
+    </div>
+    
+    ${genres.length ? `
+      <div class="chips" style="margin:12px 0">
+        ${genres.map(g => `<span class="chip">${g.name}</span>`).join('')}
+      </div>
+    ` : ''}
+    
+    <p style="margin:12px 0; color:var(--muted)">${data.overview || ''}</p>
+    
+    ${providers.length ? `
+      <div style="margin:12px 0">
+        <h3 style="font-size:0.9rem; margin-bottom:8px">Available on</h3>
+        <div class="chips">
+          ${providers.map(p => `
+            <span class="chip">
+              <img src="${imgUrl(p.logo_path,'w45')}" 
+                   alt="${p.provider_name}" 
+                   style="width:20px;height:20px;border-radius:4px;vertical-align:middle"> 
+              ${p.provider_name}
+            </span>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+  `;
+}
+
+/***********************
+ * DISCOVER PAGE      *
+ ***********************/
+async function renderDiscover(type) {
+  const app = el('#app');
+  app.innerHTML = sectionSkeleton(`Popular ${type === 'movie' ? 'Movies' : 'TV Shows'}`);
+  
+  try {
+    const data = await API.discover(type);
+    const items = data.results || [];
+    
+    app.innerHTML = `
+      <div class="section">
+        <h2>Popular ${type === 'movie' ? 'Movies' : 'TV Shows'}</h2>
+        ${grid(items, type)}
+      </div>
+    `;
+  } catch(e) {
+    console.error('Discover page error:', e);
+    app.innerHTML = errorBlock(e);
+  }
+}
+
+/***********************
+ * SEARCH             *
+ ***********************/
+let searchTimeout;
+const suggest = el('#suggest');
+
+el('#q').addEventListener('input', e => {
+  clearTimeout(searchTimeout);
+  const q = e.target.value.trim();
+  
+  if(!q) {
+    suggest.classList.remove('show');
+    return;
+  }
+  
+  searchTimeout = setTimeout(async () => {
+    try {
+      const data = await API.searchMulti(q);
+      const items = (data.results || [])
+        .filter(x => x.media_type !== 'person')
+        .slice(0, 6);
+        
+      if(!items.length) {
+        suggest.innerHTML = `<div class="suggest-empty">No results found</div>`;
+      } else {
+        suggest.innerHTML = items.map(x => `
+          <a class="suggest-item" href="#/watch?type=${x.media_type}&id=${x.id}">
+            <img src="${imgUrl(x.poster_path,'w92')}" alt="">
+            <div>
+              <div class="title">${titleOf(x)}</div>
+              <div class="sub">
+                ${x.media_type === 'movie' ? 'Movie' : 'TV'} • 
+                ${(x.release_date || x.first_air_date || '').slice(0,4)}
+              </div>
+            </div>
+          </a>
+        `).join('');
+      }
+      
+      suggest.classList.add('show');
+    } catch(e) {
+      console.error('Search error:', e);
+    }
+  }, 300);
+});
+
+document.addEventListener('click', e => {
+  if(!suggest.contains(e.target) && e.target !== el('#q')) {
+    suggest.classList.remove('show');
+  }
+});
+
+// Theme toggle
+el('#themeBtn').addEventListener('click', () => {
+  setTheme(state.theme === 'dark' ? 'light' : 'dark');
+});
+
+/***********************
+ * WATCHLIST PAGE     *
+ ***********************/
+async function renderWatchlist() {
+  const app = el('#app');
+  
+  if(!state.watchlist.length) {
+    app.innerHTML = `
+      <div style="text-align:center; padding:40px;">
+        <h2>Your watchlist is empty</h2>
+        <p style="color:var(--muted)">Add movies and TV shows to keep track of what you want to watch.</p>
+      </div>
+    `;
+    return;
+  }
+  
+  app.innerHTML = `
+    <div class="section">
+      <h2>Your Watchlist</h2>
+      ${grid(state.watchlist)}
+    </div>
+  `;
+        }
+
+/***********************
  * UTILITY FUNCTIONS   *
  ***********************/
 const sleep = (ms) => new Promise(r => setTimeout(r,ms));
