@@ -752,6 +752,80 @@ function updateEpisodeSelect(data) {
 }
 
 /***********************
+ * HOME PAGE          *
+ ***********************/
+async function renderHome() {
+  const app = el('#app');
+  app.innerHTML = skeletonHero() + sectionSkeleton('Trending') + 
+                 sectionSkeleton('Movies') + sectionSkeleton('TV');
+  
+  try {
+    const [trend, movies, tv] = await Promise.all([
+      API.trending(),
+      API.discover('movie', 1),
+      API.discover('tv', 1)
+    ]);
+    
+    const pick = (trend.results || []).find(x => x.backdrop_path) || 
+                (movies.results || [])[0] || (tv.results || [])[0] || {};
+    
+    app.innerHTML = [
+      hero(pick),
+      section('Trending', grid((trend.results || []))),
+      section('Popular Movies', grid((movies.results || []), 'movie')),
+      section('Popular TV', grid((tv.results || []), 'tv'))
+    ].join('');
+    
+  } catch(e) {
+    console.error('Home page error:', e);
+    app.innerHTML = errorBlock(e);
+  }
+}
+
+/***********************
+ * SKELETONS & LOADING *
+ ***********************/
+function skeletonHero() {
+  return `
+    <div class="hero skeleton" style="min-height:280px">
+      <div class="hero-inner">
+        <div style="width:80px;height:24px;margin-bottom:16px" class="skeleton"></div>
+        <div style="width:60%;height:32px;margin-bottom:12px" class="skeleton"></div>
+        <div style="width:80%;height:80px" class="skeleton"></div>
+      </div>
+    </div>
+  `;
+}
+
+function sectionSkeleton(title) {
+  return `
+    <div class="section">
+      <h2>${title}</h2>
+      <div class="grid">
+        ${Array(6).fill(`
+          <div class="card">
+            <div class="thumb skeleton"></div>
+            <div class="meta">
+              <div style="width:80%;height:20px;margin-bottom:8px" class="skeleton"></div>
+              <div style="width:40%;height:16px" class="skeleton"></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function errorBlock(error) {
+  return `
+    <div style="text-align:center; padding:40px;">
+      <h2>Error</h2>
+      <p style="color:var(--muted)">${error.message || 'An error occurred'}</p>
+      <button class="btn" onclick="location.reload()">Retry</button>
+    </div>
+  `;
+}
+/***********************
  * INITIALIZATION      *
  ***********************/
 document.addEventListener('DOMContentLoaded', () => {
@@ -779,3 +853,64 @@ window.addEventListener('hashchange', () => {
     }
   });
 })();
+
+/***********************
+ * INITIALIZATION     *
+ ***********************/
+document.addEventListener('DOMContentLoaded', () => {
+  setTheme(state.theme);
+  tick();
+  
+  // Add event listeners
+  el('#themeBtn').addEventListener('click', () => {
+    setTheme(state.theme === 'dark' ? 'light' : 'dark');
+  });
+  
+  // Search functionality
+  const suggest = el('#suggest');
+  el('#q').addEventListener('input', e => {
+    clearTimeout(searchTimeout);
+    const q = e.target.value.trim();
+    
+    if(!q) {
+      suggest.classList.remove('show');
+      return;
+    }
+    
+    searchTimeout = setTimeout(async () => {
+      try {
+        const data = await API.searchMulti(q);
+        const items = (data.results || [])
+          .filter(x => x.media_type !== 'person')
+          .slice(0, 6);
+          
+        if(!items.length) {
+          suggest.innerHTML = `<div class="suggest-empty">No results found</div>`;
+        } else {
+          suggest.innerHTML = items.map(x => `
+            <a class="suggest-item" href="#/watch?type=${x.media_type}&id=${x.id}">
+              <img src="${imgUrl(x.poster_path,'w92')}" alt="">
+              <div>
+                <div class="title">${titleOf(x)}</div>
+                <div class="sub">
+                  ${x.media_type === 'movie' ? 'Movie' : 'TV'} • 
+                  ${(x.release_date || x.first_air_date || '').slice(0,4)}
+                </div>
+              </div>
+            </a>
+          `).join('');
+        }
+        
+        suggest.classList.add('show');
+      } catch(e) {
+        console.error('Search error:', e);
+      }
+    }, 300);
+  });
+});
+
+// Route handling
+window.addEventListener('hashchange', () => {
+  state.route = location.hash || '#/home';
+  tick();
+});
