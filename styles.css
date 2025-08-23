@@ -120,7 +120,7 @@ header {
   justify-content: space-between;
   width: 24px;
   height: 18px;
-  background: none;
+  background: var(--bg);
   border: none;
   cursor: pointer;
   padding: 0;
@@ -132,7 +132,7 @@ header {
   display: block;
   height: 2px;
   width: 100%;
-  background: var(--bg);
+  background: var(--text);
   border-radius: 1px;
   opacity: 1;
   left: 0;
