@@ -195,7 +195,7 @@ header {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: var(--text);
+  background: var(--accent);
 }
 
 .mobile-menu-item {
