@@ -855,20 +855,30 @@ window.addEventListener('hashchange', () => {
 })();
 
 /***********************
- * INITIALIZATION     *
+ * INITIALIZATION      *
  ***********************/
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize theme
   setTheme(state.theme);
-  tick();
   
-  // Add event listeners
-  el('#themeBtn').addEventListener('click', () => {
+  // Setup event listeners
+  setupEventListeners();
+  
+  // Initial render
+  tick();
+});
+
+function setupEventListeners() {
+  // Theme toggle
+  el('#themeBtn')?.addEventListener('click', () => {
     setTheme(state.theme === 'dark' ? 'light' : 'dark');
   });
   
   // Search functionality
+  const searchInput = el('#q');
   const suggest = el('#suggest');
-  el('#q').addEventListener('input', e => {
+  
+  searchInput?.addEventListener('input', e => {
     clearTimeout(searchTimeout);
     const q = e.target.value.trim();
     
@@ -907,10 +917,31 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }, 300);
   });
-});
+  
+  // Close search suggestions when clicking outside
+  document.addEventListener('click', e => {
+    if(!suggest.contains(e.target) && e.target !== searchInput) {
+      suggest.classList.remove('show');
+    }
+  });
 
-// Route handling
-window.addEventListener('hashchange', () => {
-  state.route = location.hash || '#/home';
-  tick();
-});
+  // Route handling
+  window.addEventListener('hashchange', () => {
+    state.route = location.hash || '#/home';
+    tick();
+  });
+  
+  // First run setup
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      const k = prompt('Enter your TMDB API key:', CONFIG.TMDB_KEY);
+      if(k) { CONFIG.TMDB_KEY = k; toast('API key saved'); tick(); }
+    }
+    if(e.key === 'r' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      const r = prompt('Enter your region code (e.g., US, GB):', CONFIG.REGION);
+      if(r) { CONFIG.REGION = r.toUpperCase(); toast('Region updated'); tick(); }
+    }
+  });
+            }
