@@ -52,9 +52,9 @@ const MOVIE_ENDPOINTS = [
 ];
 
 const SERIES_ENDPOINTS = [
-  'https://vidsrc.vip/embed/tv/',
-  'https://111movies.com/tv/',
   'https://vidlink.pro/tv/',
+  'https://111movies.com/tv/',
+  'https://vidsrc.vip/embed/tv/',
   'https://vidsrc.dev/embed/tv/',
   'https://vidjoy.pro/embed/tv/',
   'https://vidsrc.me/embed/tv/',
