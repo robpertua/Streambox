@@ -274,8 +274,19 @@ function grid(items, type) {
 
 function hero(item) {
   if(!item || !item.id) return '';
-  const bg = imgUrl(item.backdrop_path, 'w1280');
-  return `<section class="hero" style="background-image:linear-gradient(100deg, rgba(0,0,0,.75) 10%, rgba(0,0,0,.1)), url('${bg}')">
+  
+  // Create a media query for mobile devices
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  // Add fallback logic
+  const bgImage = isMobile ? 
+    imgUrl(item.poster_path || item.backdrop_path, 'w780') : 
+    imgUrl(item.backdrop_path || item.poster_path, 'w1280');
+  // Use poster_path for mobile and backdrop_path for desktop
+  const bgImage = isMobile ? 
+    imgUrl(item.poster_path, 'w780') : 
+    imgUrl(item.backdrop_path, 'w1280');
+  
+  return `<section class="hero" style="background-image:linear-gradient(100deg, rgba(0,0,0,.75) 10%, rgba(0,0,0,.1)), url('${bgImage}')">
     <div class="hero-inner">
       <div class="chips">
         ${badge(item.media_type || (item.title ? 'movie' : 'tv'))}
