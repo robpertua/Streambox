@@ -609,3 +609,136 @@ footer {
 .no-scroll {
   overflow: hidden;
 }
+/* Video Player Enhancements */
+.player-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.player-container.loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: grid;
+  place-items: center;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+/* Controls Layout */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.controls-primary {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.controls-secondary {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Select Groups */
+.select-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.select-group label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.episode-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.select {
+  background: var(--bg);
+  border: 1px solid var(--ring);
+  border-radius: 12px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.select:hover {
+  border-color: var(--accent);
+}
+
+/* Season Cards */
+.seasons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.season-card {
+  background: var(--card);
+  border: 1px solid var(--ring);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.season-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.season-card-inner {
+  padding: 16px;
+  text-align: center;
+}
+
+.season-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.episode-count {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+  .controls-primary {
+    flex-direction: column;
+  }
+  
+  .episode-controls {
+    flex-direction: column;
+  }
+  
+  .select {
+    width: 100%;
+    min-width: 0;
+  }
+}
