@@ -753,21 +753,7 @@ function bindPlayerControls(data) {
     });
   });
 
-  // Fullscreen
-  const fsBtn = el('#fsBtn');
-  if (fsBtn) {
-    fsBtn.addEventListener('click', () => {
-      const player = el('#player');
-      if (!player) return;
-      
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      } else {
-        player.requestFullscreen().catch(console.error);
-      }
-    });
-  }
-
+  
   // Watchlist
   const watchlistBtn = el('#watchlistBtn');
   if (watchlistBtn) {
