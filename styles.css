@@ -120,7 +120,7 @@ header {
   justify-content: space-between;
   width: 24px;
   height: 18px;
-  background: var(--bg);
+  background: none;
   border: none;
   cursor: pointer;
   padding: 0;
@@ -188,6 +188,7 @@ header {
 
 .mobile-menu.active {
   transform: translateX(0);
+  background: var(--text);
 }
 
 .mobile-menu-content {
