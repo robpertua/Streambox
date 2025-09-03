@@ -40,28 +40,28 @@ const CONFIG = {
 };
 
 const MOVIE_ENDPOINTS = [
-  'https://vidlink.pro/movie/',
-  'https://vidsrc.dev/embed/movie/',
   'https://111movies.com/movie/',
+  'https://vidlink.pro/movie/',
+  'https://player.videasy.net/movie/',
   'https://vidjoy.pro/embed/movie/',
   'https://vidsrc.io/embed/movie/',
   'https://vidsrc.cc/v2/embed/movie/',
-  'https://vidsrc.xyz/embed/movie/',
-  'https://www.2embed.cc/embed/',
+  'https://embed.su/embed/movie/',
+  'https://vidrock.net/movie/',
   'https://moviesapi.club/movie/'
 ];
 
 const SERIES_ENDPOINTS = [
-  'https://vidlink.pro/tv/',
   'https://111movies.com/tv/',
-  'https://vidsrc.vip/embed/tv/',
-  'https://vidsrc.dev/embed/tv/',
+  'https://vidlink.pro/tv/',
+  'https://player.videasy.net/tv/',
+  'https://vidrock.net/tv/',
   'https://vidjoy.pro/embed/tv/',
-  'https://vidsrc.me/embed/tv/',
+  'https://vidsrc.io/embed/tv/',
   'https://vidsrc.cc/v2/embed/tv/',
-  'https://vidsrc.xyz/embed/tv/',
-  'https://www.2embed.cc/embedtvfull/'
+  'https://embed.su/embed/tv/'
 ];
+
 
 /***********************
  * STATE MANAGEMENT    *
