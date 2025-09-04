@@ -735,42 +735,7 @@ async function renderWatch(params) {
 /***********************
  * EVENT HANDLERS      *
  ***********************/
-// Update the refreshPlayer function
-async function refreshPlayer(data) {
-  const player = el('#player');
-  if (!player) return;
-
-  // Show loading state
-  state.loadingVideo = true;
-  player.innerHTML = videoEmbed(data);
-
-  try {
-    // Wait a moment for the iframe to be created
-    await sleep(100);
-
-    const iframe = player.querySelector('iframe');
-    if (iframe) {
-      // Create a promise that resolves when iframe loads or after timeout
-      await Promise.race([
-        new Promise(resolve => {
-          iframe.onload = () => {
-            state.loadingVideo = false;
-            resolve();
-          };
-        }),
-        sleep(3000) // Timeout after 3 seconds
-      ]);
-    }
-  } catch (e) {
-    console.error('Error refreshing player:', e);
-  } finally {
-    // Always ensure loading state is removed
-    state.loadingVideo = false;
-    player.innerHTML = videoEmbed(data);
-  }
-}
-
-// Update the videoEmbed function
+// Simplified videoEmbed function
 function videoEmbed(data) {
   const { id, media_type } = data;
   const endpoints = media_type === 'movie' ? MOVIE_ENDPOINTS : SERIES_ENDPOINTS;
@@ -782,57 +747,63 @@ function videoEmbed(data) {
   }
   
   return `
-    <div class="player-container${state.loadingVideo ? ' loading' : ''}">
+    <div class="player-container">
       <iframe
         id="videoPlayer"
         src="${embedUrl}"
         allowfullscreen
         allow="fullscreen"
-        loading="lazy"
-        style="width:100%;height:100%;border:none;"
-        onload="this.parentElement.classList.remove('loading')">
+        style="width:100%;height:100%;border:none;">
       </iframe>
-      ${state.loadingVideo ? `
-        <div class="loading-overlay">
-          <div>Loading video...</div>
-        </div>
-      ` : ''}
     </div>
   `;
 }
 
-// Update the bindPlayerControls function
+// Simplified bindPlayerControls function
 function bindPlayerControls(data) {
+  // Server selection
   const serverSelect = el('#serverSelect');
   if (serverSelect) {
-    serverSelect.addEventListener('change', async (e) => {
+    serverSelect.addEventListener('change', e => {
       state.currentServer = parseInt(e.target.value);
-      await refreshPlayer(data);
+      const player = el('#player');
+      if (player) {
+        player.innerHTML = videoEmbed(data);
+      }
     });
   }
 
+  // Season selection
   const seasonSelect = el('#seasonSelect');
   if (seasonSelect) {
-    seasonSelect.addEventListener('change', async (e) => {
+    seasonSelect.addEventListener('change', e => {
       state.currentSeason = parseInt(e.target.value);
       state.currentEpisode = 1;
       updateEpisodeSelect(data);
       updateDownloadLink(data);
-      await refreshPlayer(data);
+      const player = el('#player');
+      if (player) {
+        player.innerHTML = videoEmbed(data);
+      }
     });
   }
 
+  // Episode selection
   const episodeSelect = el('#episodeSelect');
   if (episodeSelect) {
-    episodeSelect.addEventListener('change', async (e) => {
+    episodeSelect.addEventListener('change', e => {
       state.currentEpisode = parseInt(e.target.value);
       updateDownloadLink(data);
-      await refreshPlayer(data);
+      const player = el('#player');
+      if (player) {
+        player.innerHTML = videoEmbed(data);
+      }
     });
   }
 
+  // Season card buttons
   els('[data-season]').forEach(btn => {
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', () => {
       state.currentSeason = parseInt(btn.dataset.season);
       state.currentEpisode = 1;
       
@@ -841,7 +812,11 @@ function bindPlayerControls(data) {
       
       updateEpisodeSelect(data);
       updateDownloadLink(data);
-      await refreshPlayer(data);
+      
+      const player = el('#player');
+      if (player) {
+        player.innerHTML = videoEmbed(data);
+      }
       
       els('.season-card').forEach(card => 
         card.classList.toggle('active', 
@@ -850,6 +825,7 @@ function bindPlayerControls(data) {
     });
   });
 
+  // Watchlist button
   const watchlistBtn = el('#watchlistBtn');
   if (watchlistBtn) {
     watchlistBtn.addEventListener('click', () => {
@@ -859,38 +835,6 @@ function bindPlayerControls(data) {
   }
 }
 
-// Add CSS to ensure loading overlay is visible
-const style = document.createElement('style');
-style.textContent = `
-  .player-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    min-height: 400px;
-  }
-  
-  .player-container.loading iframe {
-    opacity: 0.3;
-  }
-  
-  .loading-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    font-size: 1.2em;
-    z-index: 100;
-  }
-`;
-document.head.appendChild(style);
-
-👇
 // Update link function
 function updateDownloadLink(data) {
   const downloadBtn = el('#downloadBtn');
@@ -898,6 +842,24 @@ function updateDownloadLink(data) {
     downloadBtn.href = `https://dl.vidsrc.vip/tv/${data.id}/${state.currentSeason}/${state.currentEpisode}`;
   }
 }
+
+// Update episode select function
+function updateEpisodeSelect(data) {
+  const episodeSelect = el('#episodeSelect');
+  if (!episodeSelect) return;
+  
+  const currentSeason = data.seasons?.find(s => s.season_number === state.currentSeason);
+  const episodeCount = currentSeason?.episode_count || 1;
+  
+  episodeSelect.innerHTML = Array.from(
+    {length: episodeCount}, 
+    (_, i) => `
+      <option value="${i + 1}" ${i + 1 === state.currentEpisode ? 'selected' : ''}>
+        Episode ${i + 1}
+      </option>
+    `
+  ).join('');
+          }
 
 /***********************
  * SEARCH              *
