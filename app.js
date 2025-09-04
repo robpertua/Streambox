@@ -388,10 +388,21 @@ function toggleWatchlist(item) {
       id: item.id,
       media_type: item.media_type,
       title: titleOf(item),
-      poster: item.poster_path,
+      poster_path: item.poster_path,
       timestamp: Date.now()
     });
     toast('Added to Watchlist');
+  }
+  // Save to localStorage after modification
+  saveToLocalStorage();
+}
+
+function saveToLocalStorage() {
+  try {
+    localStorage.setItem('watchlist', JSON.stringify(state.watchlist));
+    localStorage.setItem('history', JSON.stringify(state.history));
+  } catch (e) {
+    console.error('Error saving data:', e);
   }
 }
 
