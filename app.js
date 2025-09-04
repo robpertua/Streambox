@@ -902,6 +902,13 @@ function setupSearch() {
               </div>
             </a>
           `).join('');
+          
+          // Add click handlers to all suggestion items
+          els('.suggest-item', suggest).forEach(item => {
+            item.addEventListener('click', () => {
+              suggest.classList.remove('show');
+            });
+          });
         }
         
         suggest.classList.add('show');
@@ -917,8 +924,12 @@ function setupSearch() {
       suggest.classList.remove('show');
     }
   });
+  
+  // Also hide suggestions when route changes
+  window.addEventListener('hashchange', () => {
+    suggest.classList.remove('show');
+  });
 }
-
 /***********************
  * INITIALIZATION      *
  ***********************/
