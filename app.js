@@ -735,113 +735,39 @@ async function renderWatch(params) {
 /***********************
  * EVENT HANDLERS      *
  ***********************/
-function bindPlayerControls(data) {
-  // Server selection
-  const serverSelect = el('#serverSelect');
-  if (serverSelect) {
-    serverSelect.addEventListener('change', async (e) => {
-      state.loadingVideo = true;
-      state.currentServer = parseInt(e.target.value);
-      refreshPlayer(data);
-    });
-  }
-
-  // Season selection
-  const seasonSelect = el('#seasonSelect');
-  if (seasonSelect) {
-    seasonSelect.addEventListener('change', async (e) => {
-      state.loadingVideo = true;
-      state.currentSeason = parseInt(e.target.value);
-      state.currentEpisode = 1; // Reset to episode 1
-      
-      // Update episode dropdown first
-      updateEpisodeSelect(data);
-      updateDownloadLink(data);
-      
-      // Then refresh player
-      refreshPlayer(data);
-    });
-  }
-
-  // Episode selection
-  const episodeSelect = el('#episodeSelect');
-  if (episodeSelect) {
-    episodeSelect.addEventListener('change', async (e) => {
-      state.loadingVideo = true;
-      state.currentEpisode = parseInt(e.target.value);
-      updateDownloadLink(data);
-      refreshPlayer(data);
-    });
-  }
-
-  // Season card buttons
-  els('[data-season]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      state.loadingVideo = true;
-      state.currentSeason = parseInt(btn.dataset.season);
-      state.currentEpisode = 1;
-      
-      // Update season select if it exists
-      const seasonSelectEl = el('#seasonSelect');
-      if (seasonSelectEl) seasonSelectEl.value = state.currentSeason;
-      
-      // Update episode dropdown
-      updateEpisodeSelect(data);
-      updateDownloadLink(data);
-      
-      // Refresh player
-      refreshPlayer(data);
-      
-      // Update active season card
-      els('.season-card').forEach(card => 
-        card.classList.toggle('active', 
-          card.querySelector('[data-season]').dataset.season === state.currentSeason.toString())
-      );
-    });
-  });
-
-  // Watchlist button
-  const watchlistBtn = el('#watchlistBtn');
-  if (watchlistBtn) {
-    watchlistBtn.addEventListener('click', () => {
-      toggleWatchlist(data);
-      watchlistBtn.textContent = inWatchlist(data) ? '★ In Watchlist' : '☆ Add to Watchlist';
-    });
-  }
-}
-
-// New function to handle player refresh
+// Update the refreshPlayer function
 async function refreshPlayer(data) {
   const player = el('#player');
   if (!player) return;
 
   // Show loading state
-  player.innerHTML = `
-    <div class="player-container loading">
-      <div class="loading-overlay">Loading video...</div>
-    </div>
-  `;
-
-  // Short delay to ensure the loading state is shown
-  await sleep(100);
-
-  // Update the player with new video
+  state.loadingVideo = true;
   player.innerHTML = videoEmbed(data);
 
-  // Wait for iframe to load
-  const iframe = player.querySelector('iframe');
-  if (iframe) {
-    iframe.onload = () => {
-      state.loadingVideo = false;
-      player.querySelector('.player-container')?.classList.remove('loading');
-    };
-  }
+  try {
+    // Wait a moment for the iframe to be created
+    await sleep(100);
 
-  // Fallback timeout in case iframe onload doesn't fire
-  setTimeout(() => {
+    const iframe = player.querySelector('iframe');
+    if (iframe) {
+      // Create a promise that resolves when iframe loads or after timeout
+      await Promise.race([
+        new Promise(resolve => {
+          iframe.onload = () => {
+            state.loadingVideo = false;
+            resolve();
+          };
+        }),
+        sleep(3000) // Timeout after 3 seconds
+      ]);
+    }
+  } catch (e) {
+    console.error('Error refreshing player:', e);
+  } finally {
+    // Always ensure loading state is removed
     state.loadingVideo = false;
-    player.querySelector('.player-container')?.classList.remove('loading');
-  }, 2000);
+    player.innerHTML = videoEmbed(data);
+  }
 }
 
 // Update the videoEmbed function
@@ -856,20 +782,115 @@ function videoEmbed(data) {
   }
   
   return `
-    <div class="player-container ${state.loadingVideo ? 'loading' : ''}">
+    <div class="player-container${state.loadingVideo ? ' loading' : ''}">
       <iframe
         id="videoPlayer"
         src="${embedUrl}"
         allowfullscreen
         allow="fullscreen"
         loading="lazy"
-        style="width:100%;height:100%;border:none;">
+        style="width:100%;height:100%;border:none;"
+        onload="this.parentElement.classList.remove('loading')">
       </iframe>
-      ${state.loadingVideo ? '<div class="loading-overlay">Loading video...</div>' : ''}
+      ${state.loadingVideo ? `
+        <div class="loading-overlay">
+          <div>Loading video...</div>
+        </div>
+      ` : ''}
     </div>
   `;
 }
 
+// Update the bindPlayerControls function
+function bindPlayerControls(data) {
+  const serverSelect = el('#serverSelect');
+  if (serverSelect) {
+    serverSelect.addEventListener('change', async (e) => {
+      state.currentServer = parseInt(e.target.value);
+      await refreshPlayer(data);
+    });
+  }
+
+  const seasonSelect = el('#seasonSelect');
+  if (seasonSelect) {
+    seasonSelect.addEventListener('change', async (e) => {
+      state.currentSeason = parseInt(e.target.value);
+      state.currentEpisode = 1;
+      updateEpisodeSelect(data);
+      updateDownloadLink(data);
+      await refreshPlayer(data);
+    });
+  }
+
+  const episodeSelect = el('#episodeSelect');
+  if (episodeSelect) {
+    episodeSelect.addEventListener('change', async (e) => {
+      state.currentEpisode = parseInt(e.target.value);
+      updateDownloadLink(data);
+      await refreshPlayer(data);
+    });
+  }
+
+  els('[data-season]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      state.currentSeason = parseInt(btn.dataset.season);
+      state.currentEpisode = 1;
+      
+      const seasonSelectEl = el('#seasonSelect');
+      if (seasonSelectEl) seasonSelectEl.value = state.currentSeason;
+      
+      updateEpisodeSelect(data);
+      updateDownloadLink(data);
+      await refreshPlayer(data);
+      
+      els('.season-card').forEach(card => 
+        card.classList.toggle('active', 
+          card.querySelector('[data-season]').dataset.season === state.currentSeason.toString())
+      );
+    });
+  });
+
+  const watchlistBtn = el('#watchlistBtn');
+  if (watchlistBtn) {
+    watchlistBtn.addEventListener('click', () => {
+      toggleWatchlist(data);
+      watchlistBtn.textContent = inWatchlist(data) ? '★ In Watchlist' : '☆ Add to Watchlist';
+    });
+  }
+}
+
+// Add CSS to ensure loading overlay is visible
+const style = document.createElement('style');
+style.textContent = `
+  .player-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+  }
+  
+  .player-container.loading iframe {
+    opacity: 0.3;
+  }
+  
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    font-size: 1.2em;
+    z-index: 100;
+  }
+`;
+document.head.appendChild(style);
+
+👇
 // Update link function
 function updateDownloadLink(data) {
   const downloadBtn = el('#downloadBtn');
