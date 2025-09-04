@@ -922,3 +922,29 @@ main {
   background-color: #ff5722; /* orange */
   color: #fff;
 }
+.horizontal-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  padding: 1rem 0;
+  margin: 0 -1rem;
+}
+
+.horizontal-scroll .grid {
+  display: inline-flex;
+  gap: 1rem;
+  padding: 0 1rem;
+}
+
+.horizontal-scroll .card {
+  flex: 0 0 auto;
+  width: 200px;
+}
+
+@media (max-width: 768px) {
+  .horizontal-scroll .card {
+    width: 160px;
+  }
+}
