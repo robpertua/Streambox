@@ -395,6 +395,7 @@ function toggleWatchlist(item) {
   }
 }
 
+// Update pushHistory function (around line 398)
 function pushHistory(item) {
   const key = item.media_type + ':' + item.id;
   state.history = state.history.filter(x => (x.media_type + ':' + x.id) !== key);
@@ -402,10 +403,28 @@ function pushHistory(item) {
     id: item.id,
     media_type: item.media_type,
     title: titleOf(item),
-    poster: item.poster_path,
+    poster_path: item.poster_path, // Changed from poster to poster_path to match API format
     timestamp: Date.now()
   });
   state.history = state.history.slice(0, 60);
+}
+
+// Update toggleWatchlist function (around line 381)
+function toggleWatchlist(item) {
+  const idx = state.watchlist.findIndex(x => x.id === item.id && x.media_type === item.media_type);
+  if(idx > -1) {
+    state.watchlist.splice(idx, 1);
+    toast('Removed from Watchlist');
+  } else {
+    state.watchlist.unshift({
+      id: item.id,
+      media_type: item.media_type,
+      title: titleOf(item),
+      poster_path: item.poster_path, // Changed from poster to poster_path to match API format
+      timestamp: Date.now()
+    });
+    toast('Added to Watchlist');
+  }
 }
 
 /***********************
@@ -542,7 +561,13 @@ async function renderHome() {
       // Recent Activity (if user has watch history)
       state.history.length ? section('Continue Watching', 
         `<div class="horizontal-scroll">
-          ${grid(state.history.slice(0,6))}
+          ${grid(state.history.slice(0,6).map(item => ({
+            ...item,
+            title: item.title,
+            poster_path: item.poster_path,
+            media_type: item.media_type,
+            id: item.id
+          })))}
          </div>`
       ) : '',
       
@@ -637,7 +662,13 @@ async function renderWatchlist() {
   app.innerHTML = `
     <div class="section">
       <h2>Your Watchlist</h2>
-      ${grid(state.watchlist)}
+      ${grid(state.watchlist.map(item => ({
+        ...item,
+        title: item.title,
+        poster_path: item.poster_path,
+        media_type: item.media_type,
+        id: item.id
+      })))}
     </div>
   `;
 }
@@ -983,6 +1014,16 @@ function setupEventListeners() {
 
 // Main initialization
 document.addEventListener('DOMContentLoaded', () => {
+  // Load saved watchlist and history from localStorage
+  try {
+    const savedWatchlist = localStorage.getItem('watchlist');
+    const savedHistory = localStorage.getItem('history');
+    if (savedWatchlist) state.watchlist = JSON.parse(savedWatchlist);
+    if (savedHistory) state.history = JSON.parse(savedHistory);
+  } catch (e) {
+    console.error('Error loading saved data:', e);
+  }
+
   // Initialize theme
   setTheme(state.theme);
   
@@ -992,3 +1033,46 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial render
   tick();
 });
+
+// Save watchlist and history when they change
+function saveToLocalStorage() {
+  try {
+    localStorage.setItem('watchlist', JSON.stringify(state.watchlist));
+    localStorage.setItem('history', JSON.stringify(state.history));
+  } catch (e) {
+    console.error('Error saving data:', e);
+  }
+}
+
+// Update toggleWatchlist and pushHistory to save changes
+function toggleWatchlist(item) {
+  const idx = state.watchlist.findIndex(x => x.id === item.id && x.media_type === item.media_type);
+  if(idx > -1) {
+    state.watchlist.splice(idx, 1);
+    toast('Removed from Watchlist');
+  } else {
+    state.watchlist.unshift({
+      id: item.id,
+      media_type: item.media_type,
+      title: titleOf(item),
+      poster_path: item.poster_path,
+      timestamp: Date.now()
+    });
+    toast('Added to Watchlist');
+  }
+  saveToLocalStorage(); // Save changes
+}
+
+function pushHistory(item) {
+  const key = item.media_type + ':' + item.id;
+  state.history = state.history.filter(x => (x.media_type + ':' + x.id) !== key);
+  state.history.unshift({
+    id: item.id,
+    media_type: item.media_type,
+    title: titleOf(item),
+    poster_path: item.poster_path,
+    timestamp: Date.now()
+  });
+  state.history = state.history.slice(0, 60);
+  saveToLocalStorage(); // Save changes
+}
