@@ -725,6 +725,24 @@ bindPlayerControls(data);
     app.innerHTML = errorBlock(e);
   }
 }
+function updateEpisodeSelect(data) {
+  const episodeSelect = el('#episodeSelect');
+  if (!episodeSelect) return;
+  
+  // Find current season data
+  const currentSeason = data.seasons?.find(s => s.season_number === state.currentSeason);
+  const episodeCount = currentSeason?.episode_count || 1;
+  
+  // Update episode dropdown with new count
+  episodeSelect.innerHTML = Array.from(
+    {length: episodeCount}, 
+    (_, i) => `
+      <option value="${i + 1}" ${i + 1 === state.currentEpisode ? 'selected' : ''}>
+        Episode ${i + 1}
+      </option>
+    `
+  ).join('');
+}
 function bindPlayerControls(data) {
   // Add download button first
   const controlsSecondary = el('.controls-secondary');
