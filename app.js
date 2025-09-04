@@ -375,35 +375,39 @@ function detailsBlock(data) {
  * WATCHLIST MANAGEMENT*
  ***********************/
 function inWatchlist(item) {
-  return state.watchlist.some(x => x.id === item.id && x.media_type === item.media_type);
+  console.log('Checking item:', item);
+  console.log('Current watchlist:', state.watchlist);
+  const isInWatchlist = state.watchlist.some(x => x.id === item.id && x.media_type === item.media_type);
+  console.log('Is in watchlist:', isInWatchlist);
+  return isInWatchlist;
 }
 
 function toggleWatchlist(item) {
+  console.log('Toggling item:', item);
   const idx = state.watchlist.findIndex(x => x.id === item.id && x.media_type === item.media_type);
+  console.log('Found at index:', idx);
+  
   if(idx > -1) {
     state.watchlist.splice(idx, 1);
     toast('Removed from Watchlist');
   } else {
-    state.watchlist.unshift({
+    const newItem = {
       id: item.id,
-      media_type: item.media_type,
+      media_type: item.media_type || (item.title ? 'movie' : 'tv'),
       title: titleOf(item),
       poster_path: item.poster_path,
       timestamp: Date.now()
-    });
+    };
+    console.log('Adding new item:', newItem);
+    state.watchlist.unshift(newItem);
     toast('Added to Watchlist');
   }
+  
   // Save to localStorage after modification
   saveToLocalStorage();
-}
-
-function saveToLocalStorage() {
-  try {
-    localStorage.setItem('watchlist', JSON.stringify(state.watchlist));
-    localStorage.setItem('history', JSON.stringify(state.history));
-  } catch (e) {
-    console.error('Error saving data:', e);
-  }
+  
+  // Log the updated watchlist
+  console.log('Updated watchlist:', state.watchlist);
 }
 
 // Update pushHistory function (around line 398)
@@ -660,6 +664,8 @@ async function renderWatchlist() {
   const app = el('#app');
   if (!app) return; // Safety check
   
+  console.log('Rendering watchlist:', state.watchlist);
+  
   if(!state.watchlist.length) {
     app.innerHTML = `
       <div style="text-align:center; padding:40px;">
@@ -678,7 +684,10 @@ async function renderWatchlist() {
         title: item.title,
         poster_path: item.poster_path,
         media_type: item.media_type,
-        id: item.id
+        id: item.id,
+        // Add these fields to ensure proper card rendering
+        name: item.title,
+        release_date: item.timestamp ? new Date(item.timestamp).getFullYear() : ''
       })))}
     </div>
   `;
@@ -901,14 +910,28 @@ function bindPlayerControls(data) {
   });
 
   // Watchlist
-  const watchlistBtn = el('#watchlistBtn');
-  if (watchlistBtn) {
-    watchlistBtn.addEventListener('click', () => {
-      toggleWatchlist(data);
-      watchlistBtn.textContent = inWatchlist(data) ? '★ In Watchlist' : '☆ Add to Watchlist';
-    });
-  }
-}    
+  // Watchlist button
+const watchlistBtn = el('#watchlistBtn');
+if (watchlistBtn) {
+  watchlistBtn.addEventListener('click', () => {
+    console.log('Watchlist button clicked');
+    console.log('Current data:', data);
+    
+    // Make sure media_type is set
+    if (!data.media_type && data.title) {
+      data.media_type = 'movie';
+    } else if (!data.media_type) {
+      data.media_type = 'tv';
+    }
+    
+    toggleWatchlist(data);
+    
+    // Update button text after toggle
+    const isInList = inWatchlist(data);
+    console.log('Is now in watchlist:', isInList);
+    watchlistBtn.textContent = isInList ? '★ In Watchlist' : '☆ Add to Watchlist';
+  });
+    }
 
 /***********************
  * SEARCH             *
