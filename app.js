@@ -736,72 +736,63 @@ async function renderWatch(params) {
  * EVENT HANDLERS      *
  ***********************/
 function bindPlayerControls(data) {
+  // Server selection
   const serverSelect = el('#serverSelect');
   if (serverSelect) {
     serverSelect.addEventListener('change', async (e) => {
       state.loadingVideo = true;
       state.currentServer = parseInt(e.target.value);
-      const player = el('#player');
-      if (player) {
-        player.innerHTML = videoEmbed(data);
-        await sleep(500);
-        state.loadingVideo = false;
-        player.innerHTML = videoEmbed(data);
-      }
+      refreshPlayer(data);
     });
   }
 
+  // Season selection
   const seasonSelect = el('#seasonSelect');
   if (seasonSelect) {
     seasonSelect.addEventListener('change', async (e) => {
       state.loadingVideo = true;
       state.currentSeason = parseInt(e.target.value);
-      state.currentEpisode = 1;
+      state.currentEpisode = 1; // Reset to episode 1
+      
+      // Update episode dropdown first
       updateEpisodeSelect(data);
       updateDownloadLink(data);
-      const player = el('#player');
-      if (player) {
-        player.innerHTML = videoEmbed(data);
-        await sleep(500);
-        state.loadingVideo = false;
-        player.innerHTML = videoEmbed(data);
-      }
+      
+      // Then refresh player
+      refreshPlayer(data);
     });
   }
 
+  // Episode selection
   const episodeSelect = el('#episodeSelect');
   if (episodeSelect) {
     episodeSelect.addEventListener('change', async (e) => {
       state.loadingVideo = true;
       state.currentEpisode = parseInt(e.target.value);
       updateDownloadLink(data);
-      const player = el('#player');
-      if (player) {
-        player.innerHTML = videoEmbed(data);
-        await sleep(500);
-        state.loadingVideo = false;
-        player.innerHTML = videoEmbed(data);
-      }
+      refreshPlayer(data);
     });
   }
 
+  // Season card buttons
   els('[data-season]').forEach(btn => {
     btn.addEventListener('click', async () => {
       state.loadingVideo = true;
       state.currentSeason = parseInt(btn.dataset.season);
       state.currentEpisode = 1;
+      
+      // Update season select if it exists
       const seasonSelectEl = el('#seasonSelect');
       if (seasonSelectEl) seasonSelectEl.value = state.currentSeason;
+      
+      // Update episode dropdown
       updateEpisodeSelect(data);
       updateDownloadLink(data);
-      const player = el('#player');
-      if (player) {
-        player.innerHTML = videoEmbed(data);
-        await sleep(500);
-        state.loadingVideo = false;
-        player.innerHTML = videoEmbed(data);
-      }
       
+      // Refresh player
+      refreshPlayer(data);
+      
+      // Update active season card
       els('.season-card').forEach(card => 
         card.classList.toggle('active', 
           card.querySelector('[data-season]').dataset.season === state.currentSeason.toString())
@@ -809,6 +800,7 @@ function bindPlayerControls(data) {
     });
   });
 
+  // Watchlist button
   const watchlistBtn = el('#watchlistBtn');
   if (watchlistBtn) {
     watchlistBtn.addEventListener('click', () => {
@@ -818,6 +810,67 @@ function bindPlayerControls(data) {
   }
 }
 
+// New function to handle player refresh
+async function refreshPlayer(data) {
+  const player = el('#player');
+  if (!player) return;
+
+  // Show loading state
+  player.innerHTML = `
+    <div class="player-container loading">
+      <div class="loading-overlay">Loading video...</div>
+    </div>
+  `;
+
+  // Short delay to ensure the loading state is shown
+  await sleep(100);
+
+  // Update the player with new video
+  player.innerHTML = videoEmbed(data);
+
+  // Wait for iframe to load
+  const iframe = player.querySelector('iframe');
+  if (iframe) {
+    iframe.onload = () => {
+      state.loadingVideo = false;
+      player.querySelector('.player-container')?.classList.remove('loading');
+    };
+  }
+
+  // Fallback timeout in case iframe onload doesn't fire
+  setTimeout(() => {
+    state.loadingVideo = false;
+    player.querySelector('.player-container')?.classList.remove('loading');
+  }, 2000);
+}
+
+// Update the videoEmbed function
+function videoEmbed(data) {
+  const { id, media_type } = data;
+  const endpoints = media_type === 'movie' ? MOVIE_ENDPOINTS : SERIES_ENDPOINTS;
+  const currentUrl = endpoints[state.currentServer];
+  
+  let embedUrl = currentUrl + id;
+  if (media_type === 'tv') {
+    embedUrl += `/${state.currentSeason}/${state.currentEpisode}`;
+  }
+  
+  return `
+    <div class="player-container ${state.loadingVideo ? 'loading' : ''}">
+      <iframe
+        id="videoPlayer"
+        src="${embedUrl}"
+        allowfullscreen
+        allow="fullscreen"
+        loading="lazy"
+        style="width:100%;height:100%;border:none;">
+      </iframe>
+      ${state.loadingVideo ? '<div class="loading-overlay">Loading video...</div>' : ''}
+    </div>
+  `;
+}
+
+// Update link function
 function updateDownloadLink(data) {
   const downloadBtn = el('#downloadBtn');
   if (downloadBtn && data.media_type === "tv") {
