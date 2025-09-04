@@ -513,51 +513,59 @@ function episodeSelector(data) {
  ***********************/
 async function renderHome() {
   const app = el('#app');
-  if (!app) return; // Safety check
+  if (!app) return;
   
-  // Get the current page from URL params
+  // Get current page from URL params
   const urlParams = new URLSearchParams(location.hash.split('?')[1] || '');
   const currentPage = parseInt(urlParams.get('page')) || 1;
   
-  app.innerHTML = skeletonHero() + sectionSkeleton('Trending') + 
-                 sectionSkeleton('Movies') + sectionSkeleton('TV');
+  app.innerHTML = skeletonHero() + sectionSkeleton('Latest Releases') + 
+                 sectionSkeleton('Popular Movies') + sectionSkeleton('Trending Shows');
   
   try {
     const [trend, movies, tv] = await Promise.all([
-      API.trending(currentPage),  // Update API method to accept page parameter
+      API.trending(currentPage),
       API.discover('movie', currentPage),
       API.discover('tv', currentPage)
     ]);
     
-    const pick = (trend.results || []).find(x => x.backdrop_path) || 
-                (movies.results || [])[0] || (tv.results || [])[0] || {};
+    // Pick a featured item for hero section (preferring items with backdrop images)
+    const pick = (movies.results || []).find(x => x.backdrop_path) || 
+                (tv.results || [])[0] || (trend.results || [])[0] || {};
     
     const totalPages = Math.min(trend.total_pages || 1, 500);
     
     app.innerHTML = [
+      // Hero Section with Featured Content
       hero(pick),
-      section('Trending', `
-        ${grid((trend.results || []))}
-        <div class="pagination">
-          ${currentPage > 1 ? `
-            <a href="#/home?page=${currentPage - 1}" class="btn">← Previous</a>
-          ` : ''}
-          
-          <span class="page-info">Page ${currentPage} of ${totalPages}</span>
-          
-          ${currentPage < totalPages ? `
-            <a href="#/home?page=${currentPage + 1}" class="btn">Next →</a>
-          ` : ''}
+      
+      // Recent Activity (if user has watch history)
+      state.history.length ? section('Continue Watching', 
+        `<div class="horizontal-scroll">
+          ${grid(state.history.slice(0,6))}
+         </div>`
+      ) : '',
+      
+      // Main Content Sections
+      section('Latest Releases', `
+        <div class="horizontal-scroll">
+          ${grid((trend.results || []).slice(0,12))}
         </div>
       `),
+      
       section('Popular Movies', `
-        ${grid((movies.results || []), 'movie')}
+        <div class="horizontal-scroll">
+          ${grid((movies.results || []).slice(0,12), 'movie')}
+        </div>
         <div class="section-footer">
           <a href="#/movies?page=1" class="btn">View All Movies</a>
         </div>
       `),
-      section('Popular TV', `
-        ${grid((tv.results || []), 'tv')}
+      
+      section('Trending Shows', `
+        <div class="horizontal-scroll">
+          ${grid((tv.results || []).slice(0,12), 'tv')}
+        </div>
         <div class="section-footer">
           <a href="#/tv?page=1" class="btn">View All TV Shows</a>
         </div>
