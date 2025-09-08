@@ -302,8 +302,6 @@ function saveToLocalStorage() {
 /***********************
  * VIDEO PLAYER        *
  ***********************/
-// Add this near the top of your app.js, after the CONFIG section
-const adBlocker = new AdBlocker();
 
 // Modify your videoEmbed function to include ad blocking
 function videoEmbed(data) {
@@ -324,26 +322,12 @@ function videoEmbed(data) {
         allowfullscreen
         allow="fullscreen"
         style="width:100%;height:100%;border:none;"
-        onload="this.contentWindow.postMessage({ type: 'INIT_ADBLOCK' }, '*')">
-      </iframe>
+           </iframe>
     </div>
   `;
 }
 
-// Add this script to handle ad blocking
-document.addEventListener('DOMContentLoaded', function() {
-  // Message handler for iframe communication
-  window.addEventListener('message', function(event) {
-    try {
-      if (adBlocker.isAd(event.origin)) {
-        event.preventDefault();
-        return false;
-      }
-    } catch (error) {
-      console.error('Ad blocking error:', error);
-    }
-  });
-});
+
 
 function serverSelector(type) {
   const endpoints = type === 'movie' ? MOVIE_ENDPOINTS : SERIES_ENDPOINTS;
