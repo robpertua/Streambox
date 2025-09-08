@@ -59,7 +59,30 @@ const state = {
   currentEpisode: 1,
   loadingVideo: false
 };
+// Popup Blocker
+window.addEventListener('load', function() {
+  // Block popup windows
+  window.addEventListener('beforeunload', function(e) {
+    if (!e.target.activeElement?.closest('#videoPlayer')) {
+      e.preventDefault();
+      return false;
+    }
+  });
 
+  // Block window.open attempts
+  const originalOpen = window.open;
+  window.open = function() {
+    return null;
+  };
+
+  // Block popups from iframes
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#videoPlayer')) {
+      e.preventDefault();
+      return true;
+    }
+  }, true);
+});
 /***********************
  * UTILITY FUNCTIONS   *
  ***********************/
