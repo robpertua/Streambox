@@ -948,3 +948,28 @@ main {
     width: 160px;
   }
 }
+/* Ad Blocking Styles */
+[class*="ad-"],
+[class*="ads-"],
+[id*="ad-"],
+[id*="ads-"],
+.advertisement,
+.sponsored-content,
+.banner-ads,
+iframe[src*="ads"],
+ins.adsbygoogle {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Prevent ad spaces from taking up room */
+[class*="ad-placeholder"],
+[class*="ad-slot"] {
+  min-height: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
