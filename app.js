@@ -313,16 +313,16 @@ function videoEmbed(data) {
   }
   
   return `
-    <div class="player-container ${state.loadingVideo ? 'loading' : ''}">
+    <div class="player-container">
       <iframe
         id="videoPlayer"
         src="${embedUrl}"
         allowfullscreen
         allow="fullscreen"
-        loading="lazy"
+        sandbox="allow-scripts allow-same-origin allow-forms"
+        onload="this.contentWindow.postMessage({type: 'BLOCK_ADS'}, '*')"
         style="width:100%;height:100%;border:none;">
       </iframe>
-      ${state.loadingVideo ? '<div class="loading-overlay">Loading video...</div>' : ''}
     </div>
   `;
 }
