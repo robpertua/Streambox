@@ -1,29 +1,37 @@
-// Ad blocking functionality
-class AdBlocker {
-  constructor() {
-    this.adPatterns = [
-      'ads',
-      'analytics',
-      'tracking',
-      'advertisement',
-      'banner',
-      'popup',
-      'adsystem',
-      'doubleclick',
-      'google-analytics',
-      'adservice'
-    ];
-  }
+// Simple ad blocker implementation
+const StreamboxAdBlocker = {
+  init() {
+    this.removeAds();
+    this.observeNewAds();
+  },
 
-  isAd(urlString) {
-    try {
-      if (!urlString || typeof urlString !== 'string') return false;
-      
-      const url = urlString.toLowerCase();
-      return this.adPatterns.some(pattern => url.indexOf(pattern) !== -1);
-    } catch (error) {
-      console.error('Ad detection error:', error);
-      return false;
-    }
+  removeAds() {
+    const adSelectors = [
+      'iframe[src*="ads"]',
+      'iframe[src*="google"]',
+      'iframe[src*="doubleclick"]',
+      '[class*="ad-container"]',
+      '[id*="ads-"]',
+      '[class*="banner-ad"]'
+    ];
+
+    adSelectors.forEach(selector => {
+      document.querySelectorAll(selector).forEach(element => {
+        element.style.display = 'none';
+      });
+    });
+  },
+
+  observeNewAds() {
+    const observer = new MutationObserver(() => this.removeAds());
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
   }
-}
+};
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  StreamboxAdBlocker.init();
+});
