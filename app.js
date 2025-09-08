@@ -325,7 +325,6 @@ function saveToLocalStorage() {
 /***********************
  * VIDEO PLAYER        *
  ***********************/
-
 // Update your videoEmbed function
 function videoEmbed(data) {
   const { id, media_type } = data;
@@ -343,11 +342,10 @@ function videoEmbed(data) {
         id="videoPlayer"
         src="${embedUrl}"
         allowfullscreen
-        sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
-        referrerpolicy="no-referrer"
-        loading="lazy"
         allow="fullscreen"
-        style="width:100%;height:100%;border:none;">
+        sandbox="allow-scripts allow-same-origin allow-forms"
+        style="width:100%;height:100%;border:none;"
+        onload="this.contentWindow.postMessage('NO_ADS', '*')">
       </iframe>
     </div>
   `;
