@@ -69,7 +69,46 @@
   
   <link rel="stylesheet" href="styles.css" />
   <!-- Add this before </head> -->
-<script src="adblock.js"></script>
+<script>
+// Popup blocker
+(function() {
+  window.addEventListener('DOMContentLoaded', function() {
+    // Block popup windows
+    window.addEventListener('beforeunload', function(e) {
+      e.preventDefault();
+      return e.returnValue = '';
+    });
+
+    // Block window.open attempts
+    const originalOpen = window.open;
+    window.open = function() {
+      return null;
+    };
+
+    // Block common ad scripts
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        mutation.addedNodes.forEach(function(node) {
+          if (node.tagName === 'SCRIPT' || node.tagName === 'IFRAME') {
+            if (node.src && (
+              node.src.includes('ads') ||
+              node.src.includes('pop') ||
+              node.src.includes('banner')
+            )) {
+              node.remove();
+            }
+          }
+        });
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+  });
+})();
+</script>
 </head>
 <body>
   <header>
