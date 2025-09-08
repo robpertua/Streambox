@@ -303,7 +303,7 @@ function saveToLocalStorage() {
  * VIDEO PLAYER        *
  ***********************/
 
-// Modify your videoEmbed function to include ad blocking
+// Update your videoEmbed function
 function videoEmbed(data) {
   const { id, media_type } = data;
   const endpoints = media_type === 'movie' ? MOVIE_ENDPOINTS : SERIES_ENDPOINTS;
@@ -320,13 +320,15 @@ function videoEmbed(data) {
         id="videoPlayer"
         src="${embedUrl}"
         allowfullscreen
+        sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+        referrerpolicy="no-referrer"
+        loading="lazy"
         allow="fullscreen"
-        style="width:100%;height:100%;border:none;"
-           </iframe>
+        style="width:100%;height:100%;border:none;">
+      </iframe>
     </div>
   `;
 }
-
 
 
 function serverSelector(type) {
