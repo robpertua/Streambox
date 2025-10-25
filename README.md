@@ -1,10 +1,11 @@
 # Streambox
 
-Streambox is a web application designed to deliver seamless streaming experiences. Built primarily with **JavaScript**, **CSS**, and **HTML**, it provides a modern, responsive, and user-friendly interface for managing and viewing streams.
+Streambox is a web application designed to deliver seamless streaming experiences, powered by [TMDB](https://www.themoviedb.org/). Built primarily with **JavaScript**, **CSS**, and **HTML**, it provides a modern, responsive, and user-friendly interface for managing and viewing streams.
 
 ## Features
 
 - **Live Streaming**: Watch live streams directly from the browser.
+- **TMDB Integration**: Discover movies and shows with data powered by [The Movie Database (TMDB)](https://www.themoviedb.org/).
 - **Responsive UI**: Enjoy a clean and mobile-friendly design powered by CSS.
 - **Stream Management**: Easily add, remove, or organize available streams.
 - **Customizable Layouts**: Personalize your viewing experience.
@@ -41,6 +42,12 @@ Streambox/
 │   └── app.js
 ├── assets/
 ```
+
+## Powered by TMDB
+
+This product uses the TMDB API but is not endorsed or certified by TMDB.
+
+[![Powered by TMDB](https://www.themoviedb.org/assets/2/v4/logos/208x226-powered-by-square-blue-ee4b1d1a98e3b6e9e0f1a89e3b3631c4b5cddf0c3b70b6c6ec2a0b8c0e2b3a36.png)](https://www.themoviedb.org/)
 
 ## Contributing
 
