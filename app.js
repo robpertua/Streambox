@@ -313,16 +313,14 @@ function videoEmbed(data) {
   }
   
   return `
-    <div class="player-container ${state.loadingVideo ? 'loading' : ''}">
+    <div class="player-container">
       <iframe
         id="videoPlayer"
         src="${embedUrl}"
         allowfullscreen
-        allow="fullscreen"
-        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
         style="width:100%;height:100%;border:none;">
       </iframe>
-      ${state.loadingVideo ? '<div class="loading-overlay">Loading video...</div>' : ''}
     </div>
   `;
 }
