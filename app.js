@@ -21,9 +21,9 @@ const CONFIG = {
 };
 
 const MOVIE_ENDPOINTS = [
-  'https://111movies.com/movie/',
-  'https://vidlink.pro/movie/',
   'https://player.videasy.net/movie/',
+  'https://vidlink.pro/movie/',
+  'https://111movies.com/movie/',
 
   'https://vidsrc.io/embed/movie/',
   'https://vidsrc.cc/v2/embed/movie/',
@@ -33,9 +33,9 @@ const MOVIE_ENDPOINTS = [
 ];
 
 const SERIES_ENDPOINTS = [
-  'https://111movies.com/tv/',
-  'https://vidlink.pro/tv/',
   'https://player.videasy.net/tv/',
+  'https://vidlink.pro/tv/',
+  'https://111movies.com/tv/',
   'https://vidrock.net/tv/',
   
   'https://vidsrc.io/embed/tv/',
