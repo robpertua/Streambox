@@ -1,6 +1,6 @@
 // Constants and Configuration Settings
 
-const TMDB_API_KEY = 'your_tmdb_api_key';
+const TMDB_API_KEY = '8b38fdbfc051bcd57c89da7fc2e5bdef';
 const TMDB_ENDPOINTS = {
     search: 'https://api.themoviedb.org/3/search/movie',
     trending: 'https://api.themoviedb.org/3/trending/all/week',
