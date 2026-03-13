@@ -948,29 +948,4 @@ main {
     width: 160px;
   }
 }
-/* Add these rules to block popups */
-.player-container {
-  position: relative;
-  overflow: hidden;
-}
 
-/* Block common popup/overlay ad containers */
-[class*="popup"],
-[class*="overlay"],
-[id*="popup"],
-[id*="overlay"],
-[class*="banner"],
-div[style*="position: fixed"],
-iframe[src*="ads"],
-iframe[src*="popunder"] {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
-
-/* Prevent clickjacking */
-.player-container iframe {
-  pointer-events: auto !important;
-  z-index: 2147483647 !important;
-  }
